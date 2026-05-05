@@ -9,6 +9,7 @@ function renderBookmarks() {
         list.innerHTML = `
             <img src="${bookmark.favicon}" width="16" height="16">
             <a href="${bookmark.url}" target="_blank">${bookmarks.title}</a>
+            <div class="tags">${bookmark.tags.map(t => '<span class="tags">${t}</span>').join('')}</div>
         `;
         item.textContent = bookmark.url;
         list.appendChild(item);
@@ -17,13 +18,15 @@ function renderBookmarks() {
 
 document.getElementById('addBtn').addEventListener('click', async () => {
     const url = document.getElementById('urlInput').value.trim();
+    const tagString = document.getElementById('tagInput').value.trim();
+    const tags = tagString ? tagString.split(',').map(t => t.trim()) : [];
+
     if (!url) return;
 
     const {title, favicon} = await fetchPageInfo(url);
 
     bookmarks.push({
-        id: Date.now(), url, title, favicon,
-        tags: []
+        id: Date.now(), url, title, favicon, tags,
     }); 
 
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
