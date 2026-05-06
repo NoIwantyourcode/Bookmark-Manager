@@ -59,6 +59,7 @@ document.getElementById('sortDate').addEventListener('click', () => {
 });
 
 document.getElementById('sortDomain').addEventListener('click', () => {
+    bookmarks.sort((a, b) => {
         const domainA = new URL(a.url).hostname;
         const domainB = new URL(b.url).hostname;
         return domainA.localeCompare(domainB);
