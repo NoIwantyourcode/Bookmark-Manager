@@ -2,16 +2,27 @@ let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
 
 function renderBookmarks() {
     const list = document.getElementById('bookmarkList');
+    list.innerHTML = '';
 
     bookmarks.forEach(bookmark => {
         const item = document.createElement('div');
         item.classList.add('bookmark');
-        list.innerHTML = `
+        item.innerHTML = `
             <img src="${bookmark.favicon}" width="16" height="16">
-            <a href="${bookmark.url}" target="_blank">${bookmarks.title}</a>
-            <div class="tags">${bookmark.tags.map(t => '<span class="tags">${t}</span>').join('')}</div>
+            <a href="${bookmark.url}" target="_blank">${bookmark.title}</a>
+            <div class="tags">${bookmark.tags.map(t => `<span class="tags">${t}</span>`).join('')}</div>
         `;
-        item.textContent = bookmark.url;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'x';
+        deleteBtn.classList.add('deleteBtn');
+        deleteBtn.addEventListener('click', () => {
+            bookmarks = bookmarks.filter(b => b.id !== bookmark.id);
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
+        });
+        item.appendChild(deleteBtn);
+
         list.appendChild(item);
     });
 }
