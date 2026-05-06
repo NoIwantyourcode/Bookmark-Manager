@@ -1,17 +1,45 @@
 let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+let activeTag = null;
 
 function renderBookmarks() {
+    const filtered = activeTag
+        ? bookmarks.filter(b => b.tags.includes(activeTag))
+        : bookmarks;
+
     const list = document.getElementById('bookmarkList');
     list.innerHTML = '';
 
-    bookmarks.forEach(bookmark => {
+    filtered.forEach(bookmark => {
         const item = document.createElement('div');
         item.classList.add('bookmark');
+        if (!activeTag) {
+            item.style.opacity = '0';
+            setTimeout(() => item.style.opacity = '1', 10);
+        }
+
         item.innerHTML = `
             <img src="${bookmark.favicon}" width="16" height="16">
             <a href="${bookmark.url}" target="_blank">${bookmark.title}</a>
-            <div class="tags">${bookmark.tags.map(t => `<span class="tags">${t}</span>`).join('')}</div>
+            <div class="tag">${(bookmark.tags || []).map(t => `<span class="tags">${t}</span>`).join('')}</div>
         `;
+
+        item.querySelectorAll('.tags').forEach(tagE1 => {
+            if (tagE1.textContent === activeTag) tagE1.classList.add('active');
+            tagE1.addEventListener('click', (e) => {
+                e.stopPropagation();
+                activeTag = activeTag === tagE1.textContent ? null : tagE1.textContent;
+
+                document.querySelectorAll('.bookmark').forEach(b => {
+                    const tags = Array.from(b.querySelectorAll('.tags')).map(t => t.textContent);
+                    const shouldHide = activeTag && !tags.includes(activeTag);
+                    b.style.opacity = shouldHide ? '0' : '1';
+                    b.style.pointerEvents = shouldHide ? 'none' : 'auto';
+                    setTimeout(() => {
+                        b.style.display = shouldHide ? 'none' : 'flex';
+                    }, 100);
+                });
+            });
+        });
 
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'x';
@@ -24,12 +52,33 @@ function renderBookmarks() {
         item.appendChild(deleteBtn);
 
         list.appendChild(item);
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'edit';
+        editBtn.classList.add('editBtn');
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const newUrl = prompt('Edit URL:', bookmark.url);
+            if (!newUrl) return;
+            const newTags = prompt('Edit tags (comma separated):', bookmark.tags.join(', '));
+            bookmark.url = newUrl;
+            bookmark.tags = newTags ? newTags.split(',').map(t => t.trim()) : [];
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
+        });
+        item.appendChild(editBtn);
     });
+
+    document.getElementById('bookmarkCount').textContent = `${filtered.length} bookmarks`;
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<p id="emptyState">No bookmarks yet - add one!</p>';
+    }
 }
 
 document.getElementById('addBtn').addEventListener('click', async () => {
     const url = document.getElementById('urlInput').value.trim();
-    const tagString = document.getElementById('tagInput').value.trim();
+    const tagString = document.getElementById('tagInput').value = ''
     const tags = tagString ? tagString.split(',').map(t => t.trim()) : [];
 
     if (!url) return;

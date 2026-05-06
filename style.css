@@ -1,0 +1,34 @@
+.tags {
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 99px;
+    background: #333333;
+    color: white;
+    font-size: 0.75rem;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.tags.active {
+    background: #f5c842;
+    color: #111;
+}
+
+.bookmark {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.bookmark.hiding {
+    opacity: 0;
+}
+
+.bookmark.fadeIn {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        opacity: 1;
+    }
+}
