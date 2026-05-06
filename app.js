@@ -45,6 +45,27 @@ document.getElementById('addBtn').addEventListener('click', async () => {
     renderBookmarks();
 })
 
+document.getElementById('search').addEventListener('input', () => {
+    const query = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.bookmark').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+    });
+});
+
+document.getElementById('sortDate').addEventListener('click', () => {
+    bookmarks.sort((a, b) => b.id - a.id);
+    renderBookmarks();
+});
+
+document.getElementById('sortDomain').addEventListener('click', () => {
+        const domainA = new URL(a.url).hostname;
+        const domainB = new URL(b.url).hostname;
+        return domainA.localeCompare(domainB);
+    });
+    renderBookmarks();
+});
+
 async function fetchPageInfo(url) {
     try {
         const hostname = new URL(url).hostname;
