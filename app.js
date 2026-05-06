@@ -67,6 +67,17 @@ document.getElementById('sortDomain').addEventListener('click', () => {
     renderBookmarks();
 });
 
+document.getElementById('urlInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('addBtn').click();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== document.getElementById('urlInput')) {
+        e.preventDefault();
+        document.getElementById('search').focus();
+    }
+});
+
 async function fetchPageInfo(url) {
     try {
         const hostname = new URL(url).hostname;
