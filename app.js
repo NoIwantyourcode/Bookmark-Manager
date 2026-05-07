@@ -67,6 +67,17 @@ function renderBookmarks() {
             renderBookmarks();
         });
         item.appendChild(editBtn);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = 'copy';
+        copyBtn.classList.add('copyBtn');
+        copyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(bookmark.url);
+            copyBtn.textContent = 'copied!'
+            setTimeout(() => copyBtn.textContent = "copy", 1500);
+        });
+        item.appendChild(copyBtn);
     });
 
     document.getElementById('bookmarkCount').textContent = `${filtered.length} bookmarks`;
