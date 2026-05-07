@@ -17,6 +17,7 @@ On a random Sunday, I opened up my bookmark tab in chrome, What did I see? I saw
 11. Import/export JSON - Import your own list of bookmarks using a .json file and export all the bookmarks on the site in another .json file
 12. Dark/light mode toggle - Themes! select dark mode or light mode
 13. localStorage persistence - Saves all your bookmarks locally! You can find them with ease!
+14. Double detection feature - If a URL already exists, The website will warn you about it!
 
 # Tech Stack
 

@@ -52,7 +52,6 @@ function renderBookmarks() {
             renderBookmarks();
         });
         item.appendChild(deleteBtn);
-
         list.appendChild(item);
 
         const editBtn = document.createElement('button');
@@ -102,15 +101,17 @@ function renderBookmarks() {
 
 document.getElementById('addBtn').addEventListener('click', async () => {
     const url = document.getElementById('urlInput').value.trim();
-
     const tagString = document.getElementById('tagInput').value.trim();
     document.getElementById('tagInput').value = '';
-
     const tags = tagString ? tagString.split(',').map(t => t.trim()) : [];
-
     if (!url) return;
-
     const {title, favicon} = await fetchPageInfo(url);
+
+    const isDuplicate = bookmarks.some(b => b.url === url);
+    if (isDuplicate) {
+        const addAnyway = confirm('This URL already exists, are sure you want to add it?');
+        if (!addAnyway) return;
+    }
 
     bookmarks.push({
         id: Date.now(), url, title, favicon, tags,
@@ -145,14 +146,12 @@ document.getElementById('sortDomain').addEventListener('click', () => {
 
 document.getElementById('urlInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('addBtn').click();
-    console.log('Enter')
 });
 
 document.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement !== document.getElementById('urlInput')) {
         e.preventDefault();
         document.getElementById('search').focus();
-
     }
 });
 
@@ -162,7 +161,6 @@ async function fetchPageInfo(url) {
         const favicon = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`
         return {title: hostname, favicon}
     } catch (e) {
-        console.log('error', e)
         return { title: url, favicon: ''};
     }
 }
@@ -176,7 +174,6 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     a.download = 'bookmarks.json';
     a.click();
     URL.revokeObjectURL(url);
-    console.log(url)
 })
 
 document.getElementById('importFile').addEventListener('change', (e) => {
@@ -191,7 +188,6 @@ document.getElementById('importFile').addEventListener('change', (e) => {
             renderBookmarks();
         } catch (e) {
             alert('Invalid JSON file');
-            console.log(e)
         }
     };
     reader.readAsText(file);
