@@ -152,7 +152,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement !== document.getElementById('urlInput')) {
         e.preventDefault();
         document.getElementById('search').focus();
-        
+
     }
 });
 
