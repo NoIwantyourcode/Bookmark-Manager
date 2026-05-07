@@ -2,8 +2,6 @@ let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
 let activeTag = null;
 
 function renderBookmarks() {
-    console.log('bookmarks:', bookmarks.map(b => b.favourite));
-
     const filtered = activeTag
         ? bookmarks.filter(b => b.tags.includes(activeTag))
         : bookmarks;
@@ -89,7 +87,6 @@ function renderBookmarks() {
         importantBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             bookmark.favourite = !bookmark.favourite;
-            console.log('favourite:', bookmark.favourite, bookmark)
             localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
             renderBookmarks();
         });
@@ -148,12 +145,14 @@ document.getElementById('sortDomain').addEventListener('click', () => {
 
 document.getElementById('urlInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('addBtn').click();
+    console.log('Enter')
 });
 
 document.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement !== document.getElementById('urlInput')) {
         e.preventDefault();
         document.getElementById('search').focus();
+        
     }
 });
 
@@ -161,10 +160,9 @@ async function fetchPageInfo(url) {
     try {
         const hostname = new URL(url).hostname;
         const favicon = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`
-        console.log(favicon);
         return {title: hostname, favicon}
     } catch (e) {
-        console.log('error: ', e)
+        console.log('error', e)
         return { title: url, favicon: ''};
     }
 }
@@ -178,6 +176,31 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     a.download = 'bookmarks.json';
     a.click();
     URL.revokeObjectURL(url);
+    console.log(url)
+})
+
+document.getElementById('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            bookmarks = [...bookmarks, ...imported];
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
+        } catch (e) {
+            alert('Invalid JSON file');
+            console.log(e)
+        }
+    };
+    reader.readAsText(file);
+});
+
+document.getElementById('theme').addEventListener('click', () => {
+    const isLight = document.body.getAttribute('data-theme') === 'light';
+    document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    document.getElementById('theme').textContent = isLight ? "Light mode" : "Dark mode"
 })
 
 renderBookmarks();
