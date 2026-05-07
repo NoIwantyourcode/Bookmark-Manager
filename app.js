@@ -2,14 +2,18 @@ let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
 let activeTag = null;
 
 function renderBookmarks() {
+    console.log('bookmarks:', bookmarks.map(b => b.favourite));
+
     const filtered = activeTag
         ? bookmarks.filter(b => b.tags.includes(activeTag))
         : bookmarks;
 
+    const sorted = [...filtered].sort((a, b) => (b.favourite ? 1 : 0) - (a.favourite ? 1 : 0));
+
     const list = document.getElementById('bookmarkList');
     list.innerHTML = '';
 
-    filtered.forEach(bookmark => {
+    sorted.forEach(bookmark => {
         const item = document.createElement('div');
         item.classList.add('bookmark');
         if (!activeTag) {
@@ -78,6 +82,18 @@ function renderBookmarks() {
             setTimeout(() => copyBtn.textContent = "copy", 1500);
         });
         item.appendChild(copyBtn);
+
+        const importantBtn = document.createElement('button');
+        importantBtn.textContent = bookmark.favourite ? '⭐' : '☆';
+        importantBtn.classList.add('importantBtn');
+        importantBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            bookmark.favourite = !bookmark.favourite;
+            console.log('favourite:', bookmark.favourite, bookmark)
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
+        });
+        item.appendChild(importantBtn);
     });
 
     document.getElementById('bookmarkCount').textContent = `${filtered.length} bookmarks`;
@@ -89,7 +105,10 @@ function renderBookmarks() {
 
 document.getElementById('addBtn').addEventListener('click', async () => {
     const url = document.getElementById('urlInput').value.trim();
-    const tagString = document.getElementById('tagInput').value = ''
+
+    const tagString = document.getElementById('tagInput').value.trim();
+    document.getElementById('tagInput').value = '';
+
     const tags = tagString ? tagString.split(',').map(t => t.trim()) : [];
 
     if (!url) return;
@@ -149,5 +168,16 @@ async function fetchPageInfo(url) {
         return { title: url, favicon: ''};
     }
 }
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const data = JSON.stringify(bookmarks, null, 2);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bookmarks.json';
+    a.click();
+    URL.revokeObjectURL(url);
+})
 
 renderBookmarks();
